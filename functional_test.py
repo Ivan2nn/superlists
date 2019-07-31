@@ -12,6 +12,11 @@ class NewVisitorTest(unittest.TestCase):
 	def tearDown(self):
 		self.browser.quit()
 
+	def check_for_row_in_list_table(self, row_text):
+		table = self.browser.find_element_by_id('id_list_table')
+		rows = table.find_elements_by_tag_name('tr')
+		self.assertIn(row_text, [row.text for row in rows])
+
 	def test_can_start_a_list_and_retrieve_it_later(self):
 		# Melina has heard that there is a new todo-list ap and wants to check it out.
 		# so she goes to the website
@@ -37,9 +42,7 @@ class NewVisitorTest(unittest.TestCase):
 		import time
 		time.sleep(3)
 
-		table = self.browser.find_element_by_id('id_list_table')
-		rows = table.find_elements_by_tag_name('tr')
-		self.assertIn('1: Buy a new laptop', [row.text for row in rows])
+		self.check_for_row_in_list_table('1: Buy a new laptop')
 
 		# There is anothe rtextbox inviting her to insert another item. she enters "Use the laptop to make design"
 		inputbox = self.browser.find_element_by_id('id-new-item')
@@ -49,10 +52,8 @@ class NewVisitorTest(unittest.TestCase):
 		import time
 		time.sleep(3)
 
-		table = self.browser.find_element_by_id('id_list_table')
-		rows = table.find_elements_by_tag_name('tr')
-		self.assertIn('1: Buy a new laptop', [row.text for row in rows])
-		self.assertIn('2: Use the laptop to design a brand', [row.text for row in rows])
+		self.check_for_row_in_list_table('1: Buy a new laptop')
+		self.check_for_row_in_list_table('2: Use the laptop to design a brand')
 
 
 		self.fail('Finish the test!')
