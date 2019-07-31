@@ -34,12 +34,27 @@ class NewVisitorTest(unittest.TestCase):
 		# when she hits enter the page refresh, updates and now the pag elist: "1 - Buy a new laptop"
 		inputbox.send_keys(Keys.ENTER)
 
+		import time
+		time.sleep(3)
+
 		table = self.browser.find_element_by_id('id_list_table')
 		rows = table.find_elements_by_tag_name('tr')
-		self.assertTrue(
-			any(row.text == '1: Buy a new laptop' for row in rows))
+		self.assertIn('1: Buy a new laptop', [row.text for row in rows])
 
 		# There is anothe rtextbox inviting her to insert another item. she enters "Use the laptop to make design"
+		inputbox = self.browser.find_element_by_id('id-new-item')
+		inputbox.send_keys("Use the laptop to design a brand")
+		inputbox.send_keys(Keys.ENTER)
+
+		import time
+		time.sleep(3)
+
+		table = self.browser.find_element_by_id('id_list_table')
+		rows = table.find_elements_by_tag_name('tr')
+		self.assertIn('1: Buy a new laptop', [row.text for row in rows])
+		self.assertIn('2: Use the laptop to design a brand', [row.text for row in rows])
+
+
 		self.fail('Finish the test!')
 
 		# the page updates again and now shows both the items of the list
