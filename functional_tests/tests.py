@@ -40,6 +40,9 @@ class NewVisitorTest(LiveServerTestCase):
 		# when she hits enter the page refresh, updates and now the pag elist: "1 - Buy a new laptop"
 		inputbox.send_keys(Keys.ENTER)
 
+		melina_list_url = self.browser.current_url
+		self.assertRegex(melina_list_url,'/list/.+')
+
 		import time
 		time.sleep(3)
 
@@ -56,6 +59,34 @@ class NewVisitorTest(LiveServerTestCase):
 		self.check_for_row_in_list_table('1: Buy a new laptop')
 		self.check_for_row_in_list_table('2: Use the laptop to design a brand')
 
+		#Now a new user, Francis, come along to the site
+
+		# We use a new browser session to make sure that no information of Edith's coming through the cookies
+		self.browser.quit()
+		self.browser = webdriver.Firefox()
+
+		# Francis visits the home page. There is no sign of Edith's list
+		self.browser(self.live_server_url)
+		page_text = self.browser.find_element_by_tag_name('body').text
+		self.assertNotIn('Buy a new laptop', page_text)
+		self.assertNotIn('Use the laptop to design a brand', page_text)
+
+		#Francis starts a new list by entering  a new item. He is less interesting than Edith
+		inputbox = self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('Buy milk')
+		inputbox.send_keys(Keys.ENTER)
+
+		# Francis get his own unique URL
+		francis_list_url = self.browser.current_url
+		self.assertRegex(francis_list_url, '/lists/.+')
+		self.assertNotEqual(francis_list_url, melina_list_url)
+
+		# Again there is no trace of Melina's list
+		page_text = self.browser.find_element_by_tag_name('body').text
+		self.assertNotIn('Buy a new laptop', page_text)
+		self.assertIn('Buy milk', page_text)
+
+		#Satisfied, they both go to sleep
 
 		self.fail('Finish the test!')
 
