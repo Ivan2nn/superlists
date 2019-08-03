@@ -40,8 +40,12 @@ class NewVisitorTest(LiveServerTestCase):
 		# when she hits enter the page refresh, updates and now the pag elist: "1 - Buy a new laptop"
 		inputbox.send_keys(Keys.ENTER)
 
+		import time
+		time.sleep(3)
+
 		melina_list_url = self.browser.current_url
-		self.assertRegex(melina_list_url,'/list/.+')
+		print(melina_list_url)
+		self.assertRegex(melina_list_url,'/lists/.+')
 
 		import time
 		time.sleep(3)
@@ -64,18 +68,22 @@ class NewVisitorTest(LiveServerTestCase):
 		# We use a new browser session to make sure that no information of Edith's coming through the cookies
 		self.browser.quit()
 		self.browser = webdriver.Firefox()
+		self.browser.implicitly_wait(3)
 
 		# Francis visits the home page. There is no sign of Edith's list
-		self.browser(self.live_server_url)
+		self.browser.get(self.live_server_url)
 		page_text = self.browser.find_element_by_tag_name('body').text
 		self.assertNotIn('Buy a new laptop', page_text)
 		self.assertNotIn('Use the laptop to design a brand', page_text)
 
 		#Francis starts a new list by entering  a new item. He is less interesting than Edith
-		inputbox = self.browser.find_element_by_id('id_new_item')
+		inputbox = self.browser.find_element_by_id('id-new-item')
 		inputbox.send_keys('Buy milk')
 		inputbox.send_keys(Keys.ENTER)
 
+		import time
+		time.sleep(3)
+		
 		# Francis get his own unique URL
 		francis_list_url = self.browser.current_url
 		self.assertRegex(francis_list_url, '/lists/.+')
