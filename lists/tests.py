@@ -49,12 +49,6 @@ class ItemModelTest(TestCase):
 		self.assertEqual(second_saved_item.text,'Item the second')
 
 
-	def test_home_page_only_saves_items_when_necessary(self):
-		request = HttpRequest()
-		home_page(request)
-		self.assertEqual(Item.objects.count(),0)
-
-
 class ListViewTest(TestCase):
 
 	def test_uses_list_template(self):
@@ -82,6 +76,4 @@ class NewListTest(TestCase):
 
 	def test_redirects_after_a_POST(self):
 		response = self.client.post('/lists/new', data={'item_text': 'A new list item'})
-
-		self.assertEqual(response.status_code, 302)
-		self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
+		self.assertRedirects(response, '/lists/the-only-list-in-the-world/')

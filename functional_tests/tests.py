@@ -44,7 +44,6 @@ class NewVisitorTest(LiveServerTestCase):
 		time.sleep(3)
 
 		melina_list_url = self.browser.current_url
-		print(melina_list_url)
 		self.assertRegex(melina_list_url,'/lists/.+')
 
 		import time
@@ -83,7 +82,7 @@ class NewVisitorTest(LiveServerTestCase):
 
 		import time
 		time.sleep(3)
-		
+
 		# Francis get his own unique URL
 		francis_list_url = self.browser.current_url
 		self.assertRegex(francis_list_url, '/lists/.+')
