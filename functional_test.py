@@ -1,10 +1,9 @@
-from django.contrib.staticfiles.testing import StaticLiveServerCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import unittest
 
 
-class NewVisitorTest(StaticLiveServerCase):
+class NewVisitorTest(unittest.TestCase):
 
 	def setUp(self):
 		self.browser = webdriver.Firefox()
@@ -21,7 +20,7 @@ class NewVisitorTest(StaticLiveServerCase):
 	def test_can_start_a_list_and_retrieve_it_later(self):
 		# Melina has heard that there is a new todo-list ap and wants to check it out.
 		# so she goes to the website
-		self.browser.get(self.live_server_url)
+		self.browser.get('http://localhost:8000')
 
 		# she notices the page title and the header mentions the to-do list
 		self.assertIn('To-Do', self.browser.title)
@@ -43,12 +42,6 @@ class NewVisitorTest(StaticLiveServerCase):
 		import time
 		time.sleep(3)
 
-		melina_list_url = self.browser.current_url
-		self.assertRegex(melina_list_url,'/lists/.+')
-
-		import time
-		time.sleep(3)
-
 		self.check_for_row_in_list_table('1: Buy a new laptop')
 
 		# There is anothe rtextbox inviting her to insert another item. she enters "Use the laptop to make design"
@@ -62,38 +55,6 @@ class NewVisitorTest(StaticLiveServerCase):
 		self.check_for_row_in_list_table('1: Buy a new laptop')
 		self.check_for_row_in_list_table('2: Use the laptop to design a brand')
 
-		#Now a new user, Francis, come along to the site
-
-		# We use a new browser session to make sure that no information of Edith's coming through the cookies
-		self.browser.quit()
-		self.browser = webdriver.Firefox()
-		self.browser.implicitly_wait(3)
-
-		# Francis visits the home page. There is no sign of Edith's list
-		self.browser.get(self.live_server_url)
-		page_text = self.browser.find_element_by_tag_name('body').text
-		self.assertNotIn('Buy a new laptop', page_text)
-		self.assertNotIn('Use the laptop to design a brand', page_text)
-
-		#Francis starts a new list by entering  a new item. He is less interesting than Edith
-		inputbox = self.browser.find_element_by_id('id-new-item')
-		inputbox.send_keys('Buy milk')
-		inputbox.send_keys(Keys.ENTER)
-
-		import time
-		time.sleep(3)
-
-		# Francis get his own unique URL
-		francis_list_url = self.browser.current_url
-		self.assertRegex(francis_list_url, '/lists/.+')
-		self.assertNotEqual(francis_list_url, melina_list_url)
-
-		# Again there is no trace of Melina's list
-		page_text = self.browser.find_element_by_tag_name('body').text
-		self.assertNotIn('Buy a new laptop', page_text)
-		self.assertIn('Buy milk', page_text)
-
-		#Satisfied, they both go to sleep
 
 		self.fail('Finish the test!')
 
@@ -105,12 +66,5 @@ class NewVisitorTest(StaticLiveServerCase):
 
 		# She goes back to sleep
 
-
-	def test_layout_and_styling(StaticLiveServerCase):
-		#Melina goes to the homepage
-		self.browser.get(self.live_server_url)
-		self.browser.set_window_size(1024,768)
-
-		#Melina must note that the input box is centered
-		inputbox = self.browser.find_element_by_id('id_new_item')
-		self.assertAlmostEqual(inputbox.location['x'] + inputbox.size['width'] / 2, 512, delta=5)
+if __name__ == '__main__':
+	unittest.main(warnings='ignore')

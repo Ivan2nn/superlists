@@ -66,6 +66,11 @@ class ListViewTest(TestCase):
 		response = self.client.get('/lists/%d/' % (list_.id,))
 		self.assertTemplateUsed(response, 'list.html')
 
+	def test_displays_all_items(self):
+		list_ = List.objects.create()
+		Item.objects.create(text='itemy 1', list = list_)
+		Item.objects.create(text='itemy 2', list = list_)
+
 	def test_displays_onyl_items_for_that_list(self):
 		correct_list = List.objects.create()
 		Item.objects.create(text='itemey1', list=correct_list)
