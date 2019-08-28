@@ -6,6 +6,21 @@ import unittest
 
 class NewVisitorTest(StaticLiveServerCase):
 
+	@classmethod
+	def setUpClass(cls):
+		for arg in sys.argv:
+			if 'liveserver' in arg:
+				cls.server_url = 'http://' + arg.split('=')[1]
+				return
+		super().setUpClass()
+		cls.server_url = cls.live_server_url
+
+	@classmethod
+	def tearDownClass(cls):
+		if cls.server_url == cls.live_server_url:
+			super.tearDownClass()
+
+
 	def setUp(self):
 		self.browser = webdriver.Firefox()
 		self.browser.implicitly_wait(3)
@@ -21,7 +36,7 @@ class NewVisitorTest(StaticLiveServerCase):
 	def test_can_start_a_list_and_retrieve_it_later(self):
 		# Melina has heard that there is a new todo-list ap and wants to check it out.
 		# so she goes to the website
-		self.browser.get(self.live_server_url)
+		self.browser.get(self.server_url)
 
 		# she notices the page title and the header mentions the to-do list
 		self.assertIn('To-Do', self.browser.title)
@@ -70,7 +85,7 @@ class NewVisitorTest(StaticLiveServerCase):
 		self.browser.implicitly_wait(3)
 
 		# Francis visits the home page. There is no sign of Edith's list
-		self.browser.get(self.live_server_url)
+		self.browser.get(self.server_url)
 		page_text = self.browser.find_element_by_tag_name('body').text
 		self.assertNotIn('Buy a new laptop', page_text)
 		self.assertNotIn('Use the laptop to design a brand', page_text)
@@ -108,7 +123,7 @@ class NewVisitorTest(StaticLiveServerCase):
 
 	def test_layout_and_styling(StaticLiveServerCase):
 		#Melina goes to the homepage
-		self.browser.get(self.live_server_url)
+		self.browser.get(self.server_url)
 		self.browser.set_window_size(1024,768)
 
 		#Melina must note that the input box is centered
