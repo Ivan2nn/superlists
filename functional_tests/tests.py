@@ -1,28 +1,19 @@
-from django.contrib.staticfiles.testing import StaticLiveServerCase
+import os
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
+import time
 import unittest
 
 
-class NewVisitorTest(StaticLiveServerCase):
-
-	@classmethod
-	def setUpClass(cls):
-		for arg in sys.argv:
-			if 'liveserver' in arg:
-				cls.server_url = 'http://' + arg.split('=')[1]
-				return
-		super().setUpClass()
-		cls.server_url = cls.live_server_url
-
-	@classmethod
-	def tearDownClass(cls):
-		if cls.server_url == cls.live_server_url:
-			super.tearDownClass()
-
+class NewVisitorTest(StaticLiveServerTestCase):
 
 	def setUp(self):
 		self.browser = webdriver.Firefox()
+		staging_server = os.environ.get('STAGING_SERVER')
+		if staging_server:
+			self.live_server_url = 'http://' + staging_server
 		self.browser.implicitly_wait(3)
 
 	def tearDown(self):
@@ -36,7 +27,7 @@ class NewVisitorTest(StaticLiveServerCase):
 	def test_can_start_a_list_and_retrieve_it_later(self):
 		# Melina has heard that there is a new todo-list ap and wants to check it out.
 		# so she goes to the website
-		self.browser.get(self.server_url)
+		self.browser.get(self.live_server_url)
 
 		# she notices the page title and the header mentions the to-do list
 		self.assertIn('To-Do', self.browser.title)
@@ -55,13 +46,11 @@ class NewVisitorTest(StaticLiveServerCase):
 		# when she hits enter the page refresh, updates and now the pag elist: "1 - Buy a new laptop"
 		inputbox.send_keys(Keys.ENTER)
 
-		import time
 		time.sleep(3)
 
 		melina_list_url = self.browser.current_url
 		self.assertRegex(melina_list_url,'/lists/.+')
 
-		import time
 		time.sleep(3)
 
 		self.check_for_row_in_list_table('1: Buy a new laptop')
@@ -71,7 +60,6 @@ class NewVisitorTest(StaticLiveServerCase):
 		inputbox.send_keys("Use the laptop to design a brand")
 		inputbox.send_keys(Keys.ENTER)
 
-		import time
 		time.sleep(3)
 
 		self.check_for_row_in_list_table('1: Buy a new laptop')
@@ -85,7 +73,7 @@ class NewVisitorTest(StaticLiveServerCase):
 		self.browser.implicitly_wait(3)
 
 		# Francis visits the home page. There is no sign of Edith's list
-		self.browser.get(self.server_url)
+		self.browser.get(self.live_server_url)
 		page_text = self.browser.find_element_by_tag_name('body').text
 		self.assertNotIn('Buy a new laptop', page_text)
 		self.assertNotIn('Use the laptop to design a brand', page_text)
@@ -95,7 +83,6 @@ class NewVisitorTest(StaticLiveServerCase):
 		inputbox.send_keys('Buy milk')
 		inputbox.send_keys(Keys.ENTER)
 
-		import time
 		time.sleep(3)
 
 		# Francis get his own unique URL
@@ -110,7 +97,7 @@ class NewVisitorTest(StaticLiveServerCase):
 
 		#Satisfied, they both go to sleep
 
-		self.fail('Finish the test!')
+		#self.fail('Finish the test!')
 
 		# the page updates again and now shows both the items of the list
 
@@ -121,11 +108,11 @@ class NewVisitorTest(StaticLiveServerCase):
 		# She goes back to sleep
 
 
-	def test_layout_and_styling(StaticLiveServerCase):
+	def test_layout_and_styling(self):
 		#Melina goes to the homepage
-		self.browser.get(self.server_url)
+		self.browser.get(self.live_server_url)
 		self.browser.set_window_size(1024,768)
 
 		#Melina must note that the input box is centered
-		inputbox = self.browser.find_element_by_id('id_new_item')
-		self.assertAlmostEqual(inputbox.location['x'] + inputbox.size['width'] / 2, 512, delta=5)
+		inputbox = self.browser.find_element_by_id('id-new-item')
+		self.assertAlmostEqual(inputbox.location['x'] + inputbox.size['width'] / 2, 512, delta=10)
